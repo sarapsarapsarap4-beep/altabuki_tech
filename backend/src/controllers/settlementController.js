@@ -28,7 +28,7 @@ exports.setGlobalCommission = async (req, res) => {
   try {
     const { commissionRate, commissionType } = req.body;
     
-    if (!commissionRate || commissionRate < 0 || commissionRate > 100) {
+    if (commissionRate === undefined || commissionRate === null || !Number.isFinite(Number(commissionRate)) || Number(commissionRate) < 0 || Number(commissionRate) > 100) {
       return res.status(400).json({ 
         success: false, 
         error: 'Commission rate must be between 0 and 100' 
@@ -61,7 +61,7 @@ exports.setVendorCommission = async (req, res) => {
       return res.status(400).json({ success: false, error: 'Vendor ID required' });
     }
     
-    if (!commissionRate || commissionRate < 0 || commissionRate > 100) {
+    if (commissionRate === undefined || commissionRate === null || !Number.isFinite(Number(commissionRate)) || Number(commissionRate) < 0 || Number(commissionRate) > 100) {
       return res.status(400).json({ 
         success: false, 
         error: 'Commission rate must be between 0 and 100' 
@@ -95,7 +95,7 @@ exports.setCategoryCommission = async (req, res) => {
       return res.status(400).json({ success: false, error: 'Category ID required' });
     }
     
-    if (!commissionRate || commissionRate < 0 || commissionRate > 100) {
+    if (commissionRate === undefined || commissionRate === null || !Number.isFinite(Number(commissionRate)) || Number(commissionRate) < 0 || Number(commissionRate) > 100) {
       return res.status(400).json({ 
         success: false, 
         error: 'Commission rate must be between 0 and 100' 

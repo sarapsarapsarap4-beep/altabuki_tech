@@ -13,7 +13,7 @@ class AppLocalizations {
 
   static const Map<String, Map<String, String>> _translations = {
     'en': {
-      'app_name': 'MyMart',
+      'app_name': 'Baqshat Tech',
       'product_details': 'Product Details',
       'my_orders': 'My Orders',
       'account_settings': 'Account Settings',
@@ -71,6 +71,7 @@ class AppLocalizations {
       'hindi': 'हिन्दी',
       'chinese': '中文',
       'stores': 'Stores',
+      'my_networks': 'My Networks',
       'all_stores': 'All Stores',
       'no_stores': 'No stores available yet',
       'no_stores_desc': 'Check back later for exciting stores!',
@@ -236,7 +237,8 @@ class AppLocalizations {
       'chinese': 'چینی',
     },
     'ar': {
-      'app_name': 'ماي مارت',
+      'my_networks': 'معرض شبكاتي',
+      'app_name': 'باقشات تك',
       'product_details': 'تفاصيل المنتج',
       'my_orders': 'طلباتي',
       'account_settings': 'إعدادات الحساب',
@@ -354,7 +356,7 @@ class AppLocalizations {
       'chinese': 'चीनी',
     },
     'zh': {
-      'app_name': 'MyMart',
+      'app_name': 'Baqshat Tech',
       'product_details': '产品详情',
       'my_orders': '我的订单',
       'account_settings': '账户设置',

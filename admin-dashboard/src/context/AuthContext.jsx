@@ -11,7 +11,7 @@ export const useAuth = () => {
   return context;
 };
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_BASE = import.meta.env.VITE_API_URL || 'https://my-mart-backend-two.vercel.app/api';
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -33,10 +33,11 @@ export const AuthProvider = ({ children }) => {
       const response = await axios.get(`${API_BASE}/auth/profile`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      if (response.data.success) {
+      if (response.data.success && response.data.user?.role === 'admin') {
         setUser(response.data.user);
       } else {
         localStorage.removeItem('admin_token');
+        setUser(null);
       }
     } catch (err) {
       localStorage.removeItem('admin_token');
@@ -49,10 +50,16 @@ export const AuthProvider = ({ children }) => {
       setError(null);
       const response = await axios.post(`${API_BASE}/auth/login`, { email, password });
       
-      if (response.data.success) {
+      if (response.data.success && response.data.user?.role === 'admin') {
         localStorage.setItem('admin_token', response.data.token);
         setUser(response.data.user);
         return { success: true };
+      } else if (response.data.success) {
+        localStorage.removeItem('admin_token');
+        setUser(null);
+        const message = 'هذا الحساب ليس حساب مدير ولا يمكنه الدخول إلى لوحة الإدارة.';
+        setError(message);
+        return { success: false, error: message };
       } else {
         setError(response.data.error);
         return { success: false, error: response.data.error };

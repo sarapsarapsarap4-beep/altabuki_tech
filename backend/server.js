@@ -31,6 +31,7 @@ const bannerRoutes = require('./src/routes/banners');
 const adminStoreRoutes = require('./src/routes/adminStore');
 const vendorCouponRoutes = require('./src/routes/vendorCoupons');
 const rateLimiter = require('./src/middleware/rateLimiter');
+const wifiVoucherRoutes = require('./src/routes/wifiVouchers');
 
 const app = express();
 
@@ -347,6 +348,9 @@ app.get('/api/debug/products', async (req, res) => {
 app.use('/api/auth', authRoutes);
 // Supabase Auth routes (for OTP-based login)
 app.use('/api/supabase-auth', supabaseAuthRoutes);
+
+// Wi-Fi voucher marketplace, owner network registration, wallet and admin review
+app.use('/api/wifi-vouchers', wifiVoucherRoutes);
 
 // ==================== STORE ROUTES ====================
 app.use('/api/stores', storeRoutes);

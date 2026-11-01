@@ -6,117 +6,27 @@ const pool = require('../config/database');
 // ==================== COMMISSION CONFIGURATION ====================
 
 // Get applicable commission rate for a vendor/product
-exports.getApplicableCommission = async (vendorId, categoryId) => {
-  try {
-    // Priority: Vendor specific > Category specific > Global
-    let query = `
-      SELECT * FROM commission_config 
-      WHERE is_active = true 
-      AND (
-        (config_type = 'vendor' AND vendor_id = $1)
-        OR (config_type = 'category' AND category_id = $2)
-        OR (config_type = 'global')
-      )
-      ORDER BY 
-        CASE config_type 
-          WHEN 'vendor' THEN 1 
-          WHEN 'category' THEN 2 
-          WHEN 'global' THEN 3 
-        END
-      LIMIT 1
-    `;
-    
-    const result = await pool.query(query, [vendorId, categoryId]);
-    
-    if (result.rows.length === 0) {
-      // Default 10% if no config found
-      return {
-        success: true,
-        commissionRate: 10.00,
-        commissionType: 'percentage',
-        configType: 'default'
-      };
-    }
-    
-    const config = result.rows[0];
-    return {
-      success: true,
-      commissionRate: parseFloat(config.commission_rate),
-      commissionType: config.commission_type,
-      fixedAmount: parseFloat(config.fixed_amount || 0),
-      configType: config.config_type,
-      configId: config.id
-    };
-    
-  } catch (error) {
-    console.error('Get applicable commission error:', error);
-    return { success: false, error: error.message };
-  }
-};
+const commissionPolicy = require('./commissionPolicy');
+
+exports.getApplicableCommission = async (_vendorId, _categoryId) => commissionPolicy.applicableCommission();
 
 // Set vendor-specific commission
 exports.setVendorCommission = async (vendorId, commissionRate, commissionType = 'percentage') => {
-  try {
-    // Deactivate existing vendor config
-    await pool.query(
-      'UPDATE commission_config SET is_active = false WHERE config_type = $1 AND vendor_id = $2',
-      ['vendor', vendorId]
-    );
-    
-    // Insert new config
-    const result = await pool.query(
-      `INSERT INTO commission_config (config_type, vendor_id, commission_rate, commission_type)
-       VALUES ('vendor', $1, $2, $3) RETURNING *`,
-      [vendorId, commissionRate, commissionType]
-    );
-    
-    return { success: true, config: result.rows[0] };
-  } catch (error) {
-    console.error('Set vendor commission error:', error);
-    return { success: false, error: error.message };
-  }
+  const policy = commissionPolicy.setCommission(vendorId, commissionRate, 'vendor');
+  if (!policy.success) return policy;
+  return { success: true, config: { ...policy.config, vendor_id: vendorId, commission_type: commissionType } };
 };
 
-// Set category-specific commission
 exports.setCategoryCommission = async (categoryId, commissionRate, commissionType = 'percentage') => {
-  try {
-    await pool.query(
-      'UPDATE commission_config SET is_active = false WHERE config_type = $1 AND category_id = $2',
-      ['category', categoryId]
-    );
-    
-    const result = await pool.query(
-      `INSERT INTO commission_config (config_type, category_id, commission_rate, commission_type)
-       VALUES ('category', $1, $2, $3) RETURNING *`,
-      [categoryId, commissionRate, commissionType]
-    );
-    
-    return { success: true, config: result.rows[0] };
-  } catch (error) {
-    console.error('Set category commission error:', error);
-    return { success: false, error: error.message };
-  }
+  const policy = commissionPolicy.setCommission(categoryId, commissionRate, 'category');
+  if (!policy.success) return policy;
+  return { success: true, config: { ...policy.config, category_id: categoryId, commission_type: commissionType } };
 };
 
-// Set global commission
 exports.setGlobalCommission = async (commissionRate, commissionType = 'percentage') => {
-  try {
-    await pool.query(
-      'UPDATE commission_config SET is_active = false WHERE config_type = $1',
-      ['global']
-    );
-    
-    const result = await pool.query(
-      `INSERT INTO commission_config (config_type, commission_rate, commission_type)
-       VALUES ('global', $1, $2) RETURNING *`,
-      [commissionRate, commissionType]
-    );
-    
-    return { success: true, config: result.rows[0] };
-  } catch (error) {
-    console.error('Set global commission error:', error);
-    return { success: false, error: error.message };
-  }
+  const policy = commissionPolicy.setCommission(null, commissionRate, 'global');
+  if (!policy.success) return policy;
+  return { success: true, config: { ...policy.config, commission_type: commissionType } };
 };
 
 // Get all commission configs

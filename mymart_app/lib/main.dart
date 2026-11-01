@@ -103,7 +103,7 @@ class _MyAppState extends State<MyApp> {
       child: Consumer2<ThemeProvider, LanguageProvider>(
         builder: (context, themeProvider, langProvider, child) {
           return MaterialApp(
-            title: 'MyMart',
+            title: 'Baqshat Tech',
             debugShowCheckedModeBanner: false,
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,

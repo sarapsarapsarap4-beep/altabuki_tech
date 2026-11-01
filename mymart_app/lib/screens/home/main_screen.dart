@@ -12,6 +12,7 @@ import 'categories_screen.dart';
 import '../cart/cart_screen.dart';
 import '../profile/profile_screen.dart';
 import '../store/stores_screen.dart';
+import '../store/my_networks_screen.dart';
 
 class MainScreen extends StatefulWidget {
   final int initialTabIndex;
@@ -28,7 +29,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   final List<_NavItem> _navItems = [
     _NavItem(Icons.home_rounded, Icons.home_rounded, 'home'),
     _NavItem(Icons.category_rounded, Icons.category_rounded, 'categories'),
-    _NavItem(Icons.storefront_rounded, Icons.storefront_rounded, 'stores'),
+    _NavItem(Icons.wifi_tethering_rounded, Icons.wifi_tethering_rounded, 'my_networks'),
     _NavItem(Icons.shopping_cart_outlined, Icons.shopping_cart_rounded, 'cart'),
     _NavItem(Icons.person_outline, Icons.person_rounded, 'profile'),
   ];
@@ -39,7 +40,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
       () => switch (index) {
         0 => const HomeScreen(),
         1 => const CategoriesScreen(),
-        2 => const StoresScreen(),
+        2 => const MyNetworksScreen(),
         3 => const CartScreen(),
         4 => const ProfileScreen(),
         _ => const HomeScreen(),

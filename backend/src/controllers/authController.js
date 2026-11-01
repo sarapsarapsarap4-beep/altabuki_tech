@@ -10,7 +10,16 @@ exports.register = async (req, res) => {
   const { v4: uuidv4 } = await import('uuid');
 
   const body = req.body || {};
-  const { email, password, firstName, lastName, role, phone } = body;
+  const { password, firstName, lastName, phone } = body;
+  const requestedRole = body.role || 'customer';
+  const suppliedEmail = typeof body.email === 'string' ? body.email.trim().toLowerCase() : '';
+  const normalizedPhone = typeof phone === 'string' ? phone.trim() : '';
+  // The legacy schema requires email; phone-only accounts receive a non-deliverable internal identifier.
+  const email = suppliedEmail || (normalizedPhone ? `${normalizedPhone.replace(/[^0-9]/g, '')}@phone.local` : '');
+
+  if (!['customer', 'vendor'].includes(requestedRole)) {
+    return res.status(400).json({ success: false, error: 'Invalid registration role. Administrator accounts can only be created through the secure setup script.' });
+  }
 
   const validation = validator.validateRegistration(body);
   if (!validation.valid) {
@@ -21,17 +30,14 @@ exports.register = async (req, res) => {
     });
   }
 
-  if (!email || !password) {
-    return res.status(400).json({
-      success: false,
-      error: '❌ Email and password are required!'
-    });
+  if ((!suppliedEmail && !normalizedPhone) || !password) {
+    return res.status(400).json({ success: false, error: 'Phone number or email and password are required.' });
   }
 
   try {
     const userExists = await pool.query(
-      'SELECT * FROM users WHERE email = $1',
-      [email]
+      "SELECT * FROM users WHERE LOWER(email) = LOWER($1) OR ($2 <> '' AND phone = $2)",
+      [email, normalizedPhone]
     );
 
     if (userExists.rows.length > 0) {
@@ -43,7 +49,7 @@ exports.register = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const userId = uuidv4();
-    const isVendor = role === 'vendor';
+    const isVendor = requestedRole === 'vendor';
 
     // Create user - vendors need admin approval to login
     const isActive = !isVendor; // Vendors start inactive (need approval)
@@ -59,32 +65,35 @@ exports.register = async (req, res) => {
       firstName || '',
       lastName || '',
       phone || '',
-      role || 'customer',
+      requestedRole,
       isActive
     ]);
 
-    console.log(`✅ New user created: ${email} (${role || 'customer'})`);
+    console.log(`✅ New user created: ${email} (${requestedRole})`);
 
-    const otp = crypto.randomInt(100000, 999999).toString();
-    const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
-    await pool.query('DELETE FROM email_verification_otps WHERE email = $1', [email]);
-    await pool.query(
-      'INSERT INTO email_verification_otps (email, otp, expires_at) VALUES ($1, $2, $3)',
-      [email, otp, expiresAt]
-    );
-    const emailResult = await sendOTPEmail(email, otp);
-    if (!emailResult.success) {
-      console.log(`⚠️ Registration OTP email failed for ${email}, OTP: ${otp}`);
+    let otpSent = false;
+    if (suppliedEmail) {
+      const otp = crypto.randomInt(100000, 999999).toString();
+      const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+      await pool.query('DELETE FROM email_verification_otps WHERE email = $1', [email]);
+      await pool.query(
+        'INSERT INTO email_verification_otps (email, otp, expires_at) VALUES ($1, $2, $3)',
+        [email, otp, expiresAt]
+      );
+      const emailResult = await sendOTPEmail(email, otp);
+      otpSent = Boolean(emailResult.success);
     }
 
     res.status(200).json({
       success: true,
-      message: isVendor 
-        ? '✅ Registration submitted! Your account is pending admin approval. You will be notified once approved.'
-        : '✅ Registration successful! Please check your email for the verification OTP.',
-      email: email,
+      message: isVendor
+        ? 'Registration submitted. This account is pending admin approval.'
+        : suppliedEmail ? 'Registration successful. Check your email for verification.' : 'Registration successful. Phone verification must be completed through the configured OTP provider.',
+      email: suppliedEmail || null,
+      phone: normalizedPhone || null,
       isVendor: isVendor,
-      otpSent: true
+      otpSent,
+      phoneVerificationRequired: !suppliedEmail
     });
 
   } catch (error) {
@@ -98,26 +107,24 @@ exports.register = async (req, res) => {
 
 exports.login = async (req, res) => {
   const body = req.body || {};
-  const { email, password } = body;
+  const identifier = String(body.identifier || body.email || body.phone || '').trim();
+  const password = body.password;
 
-  if (!email || !password) {
-    return res.status(400).json({
-      success: false,
-      error: '❌ Email and password are required!'
-    });
+  if (!identifier || !password) {
+    return res.status(400).json({ success: false, error: 'Phone number or email and password are required.' });
   }
 
   try {
+    const isEmail = identifier.includes('@');
     const result = await pool.query(
-      'SELECT * FROM users WHERE email = $1',
-      [email]
+      isEmail
+        ? 'SELECT * FROM users WHERE LOWER(email) = LOWER($1)'
+        : 'SELECT * FROM users WHERE phone = $1 OR email = $2',
+      isEmail ? [identifier] : [identifier, `${identifier.replace(/[^0-9]/g, '')}@phone.local`]
     );
 
     if (result.rows.length === 0) {
-      return res.status(401).json({
-        success: false,
-        error: '❌ Email or password is wrong!'
-      });
+      return res.status(401).json({ success: false, error: 'Phone number/email or password is incorrect.' });
     }
 
     const user = result.rows[0];

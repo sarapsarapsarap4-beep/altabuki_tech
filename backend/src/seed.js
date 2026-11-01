@@ -11,6 +11,12 @@ async function seed() {
   console.log('🌱 Starting database seed...\n');
 
   try {
+    const adminEmail = String(process.env.ADMIN_EMAIL || 'admin@mymart.com').trim().toLowerCase();
+    const configuredAdminPassword = process.env.ADMIN_PASSWORD;
+    if (!configuredAdminPassword || configuredAdminPassword.length < 12) {
+      throw new Error('Set ADMIN_PASSWORD to a unique password of at least 12 characters before seeding.');
+    }
+
     // 1. Create Categories
     console.log('📁 Creating categories...');
     const categories = [
@@ -38,16 +44,18 @@ async function seed() {
 
     // 2. Create Admin User
     console.log('\n👤 Creating admin user...');
-    const adminPassword = await bcrypt.hash('admin123', 10);
-    const adminId = uuidv4();
+    const adminPassword = await bcrypt.hash(configuredAdminPassword, 12);
+    let adminId;
     try {
-      await pool.query(
-        `INSERT INTO users (id, email, password, first_name, last_name, role, is_active)
-         VALUES ($1, $2, $3, $4, $5, $6, true)
-         ON CONFLICT (email) DO UPDATE SET role = $6`,
-        [adminId, 'admin@mymart.com', adminPassword, 'Admin', 'User', 'admin']
+      const adminResult = await pool.query(
+        `INSERT INTO users (id, email, password_hash, first_name, last_name, role, is_active, email_verified)
+         VALUES ($1, $2, $3, $4, $5, 'admin', true, true)
+         ON CONFLICT (email) DO UPDATE SET password_hash = $3, role = 'admin', is_active = true, email_verified = true, updated_at = NOW()
+         RETURNING id`,
+        [uuidv4(), adminEmail, adminPassword, process.env.ADMIN_FIRST_NAME || 'Platform', process.env.ADMIN_LAST_NAME || 'Administrator']
       );
-      console.log('  ✅ Admin: admin@mymart.com / admin123');
+      adminId = adminResult.rows[0].id;
+      console.log(`  ✅ Admin configured: ${adminEmail} (password not printed)`);
     } catch (e) {
       console.log(`  ⚠️  Admin: ${e.message}`);
     }
@@ -103,9 +111,8 @@ async function seed() {
     }
 
     console.log('\n✅ Database seeded successfully!');
-    console.log('\n📋 Login Credentials:');
-    console.log('   Email: admin@mymart.com');
-    console.log('   Password: admin123');
+    console.log(`\n📋 Admin login email: ${adminEmail}`);
+    console.log('   Use the password supplied via ADMIN_PASSWORD (not printed).');
     console.log('\n🌐 Backend URL: http://localhost:5000');
     console.log('📱 Frontend: Run "npm start" in frontend folder\n');
 

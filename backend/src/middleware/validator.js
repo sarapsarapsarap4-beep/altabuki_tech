@@ -60,9 +60,9 @@ const validator = {
     validateRegistration: (data) => {
         const errors = [];
         
-        if (!data.email) {
-            errors.push('Email is required');
-        } else if (!validator.email(data.email)) {
+        if (!data.email && !data.phone) {
+            errors.push('Phone number or email is required');
+        } else if (data.email && !validator.email(data.email)) {
             errors.push('Invalid email format');
         }
         

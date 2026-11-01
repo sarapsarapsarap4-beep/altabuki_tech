@@ -89,4 +89,11 @@ class ApiConfig {
   static const String vendorOrders = '/api/orders/vendor/orders';
   static const String vendorOrderStatus = '/api/orders/vendor/orders'; // + /:id/status
   static const String uploadProductImage = '/api/storage/product-image';
+
+  // Wi-Fi network and voucher marketplace (Phase 1)
+  static const String wifiNetworks = '/api/wifi-vouchers/networks';
+  static const String myWifiNetworks = '/api/wifi-vouchers/networks/mine';
+  static const String registerWifiNetwork = '/api/wifi-vouchers/networks/register';
+  static const String wifiWallet = '/api/wifi-vouchers/wallet';
+  static const String myVoucherPurchases = '/api/wifi-vouchers/purchases/mine';
 }

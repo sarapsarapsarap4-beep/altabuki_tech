@@ -22,6 +22,7 @@ import Disputes from './pages/Disputes';
 import DeliverySlots from './pages/DeliverySlots';
 import Shipping from './pages/Shipping';
 import BulkOperations from './pages/BulkOperations';
+import WifiNetworks from './pages/WifiNetworks';
 import './index.css';
 
 function ProtectedRoute({ children }) {
@@ -29,9 +30,9 @@ function ProtectedRoute({ children }) {
   
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-violet-50 via-purple-50 to-teal-50">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-16 h-16 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin" />
+          <div className="w-16 h-16 border-4 border-violet-200 border-t-violet-600 rounded-full animate-spin" />
           <p className="text-gray-500 font-medium">Loading...</p>
         </div>
       </div>
@@ -50,9 +51,9 @@ function AppRoutes() {
   
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-violet-50 via-purple-50 to-teal-50">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-16 h-16 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin" />
+          <div className="w-16 h-16 border-4 border-violet-200 border-t-violet-600 rounded-full animate-spin" />
           <p className="text-gray-500 font-medium">Loading...</p>
         </div>
       </div>
@@ -66,6 +67,7 @@ function AppRoutes() {
       <Route path="/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />
       <Route path="/orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
       <Route path="/vendors" element={<ProtectedRoute><Vendors /></ProtectedRoute>} />
+      <Route path="/wifi-networks" element={<ProtectedRoute><WifiNetworks /></ProtectedRoute>} />
       <Route path="/categories" element={<ProtectedRoute><Categories /></ProtectedRoute>} />
       <Route path="/banners" element={<ProtectedRoute><Banners /></ProtectedRoute>} />
       <Route path="/coupons" element={<ProtectedRoute><Coupons /></ProtectedRoute>} />

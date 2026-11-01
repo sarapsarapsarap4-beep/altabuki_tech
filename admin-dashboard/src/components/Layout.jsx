@@ -7,12 +7,13 @@ import {
   LayoutDashboard, Users, ShoppingBag, Store,
   FolderTree, Star, BarChart3, LogOut, Menu, X, Settings,
   Bell, Image, ChevronLeft, ChevronRight, Wallet, FileText, Activity, Shield, Tag, UserCog, Scale,
-  Clock, Truck, Database, } from 'lucide-react';
+  Clock, Truck, Database, Wifi, } from 'lucide-react';
 
 const menuItems = [
-  { path: '/', label: 'Dashboard', icon: LayoutDashboard, color: 'from-emerald-500 to-green-600' },
+  { path: '/', label: 'Dashboard', icon: LayoutDashboard, color: 'from-violet-500 to-purple-600' },
   { path: '/users', label: 'Users', icon: Users, color: 'from-blue-500 to-cyan-600' },
-  { path: '/vendors', label: 'Vendors', icon: Store, color: 'from-teal-500 to-emerald-600' },
+  { path: '/vendors', label: 'Vendors', icon: Store, color: 'from-teal-500 to-violet-600' },
+  { path: '/wifi-networks', label: 'Wi-Fi Networks', icon: Wifi, color: 'from-violet-500 to-purple-700' },
   { path: '/orders', label: 'Orders', icon: ShoppingBag, color: 'from-orange-500 to-red-500' },
   { path: '/categories', label: 'Categories', icon: FolderTree, color: 'from-indigo-500 to-blue-600' },
   { path: '/banners', label: 'Banners', icon: Image, color: 'from-pink-500 to-rose-600' },
@@ -20,7 +21,7 @@ const menuItems = [
   { path: '/disputes', label: 'Disputes', icon: Scale, color: 'from-red-500 to-rose-600' },
   { path: '/reviews', label: 'Reviews', icon: Star, color: 'from-yellow-500 to-amber-600' },
   { path: '/notifications', label: 'Notifications', icon: Bell, color: 'from-amber-500 to-orange-600' },
-  { path: '/earnings', label: 'Earnings', icon: Wallet, color: 'from-green-500 to-emerald-600' },
+  { path: '/earnings', label: 'Earnings', icon: Wallet, color: 'from-purple-500 to-violet-600' },
   { path: '/reports', label: 'Reports', icon: FileText, color: 'from-gray-500 to-slate-600' },
   { path: '/analytics', label: 'Analytics', icon: Activity, color: 'from-cyan-500 to-blue-600' },
   { path: '/delivery-slots', label: 'Delivery Slots', icon: Clock, color: 'from-cyan-500 to-teal-600' },
@@ -47,9 +48,9 @@ export default function Layout({ children }) {
   const currentPath = '/' + (location.pathname.split('/')[1] || '');
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/30">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50/30">
       <SkipToContent />
-      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-gradient-to-r from-emerald-600 to-green-600 flex items-center px-4 z-30 shadow-lg shadow-emerald-900/10">
+      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-gradient-to-r from-violet-600 to-purple-600 flex items-center px-4 z-30 shadow-lg shadow-violet-900/10">
         <button onClick={() => setMobileOpen(true)} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
           <Menu size={24} className="text-white" />
         </button>
@@ -66,11 +67,11 @@ export default function Layout({ children }) {
         animate={{ width: sidebarOpen ? 260 : 80 }}
         transition={{ duration: 0.3, ease: 'easeInOut' }}
         className={`
-          fixed top-0 left-0 h-full z-40 shadow-2xl shadow-emerald-900/5
+          fixed top-0 left-0 h-full z-40 shadow-2xl shadow-violet-900/5
           ${mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
       >
-        <div className="h-full bg-gradient-to-b from-emerald-600 via-green-600 to-emerald-700">
+        <div className="h-full bg-gradient-to-b from-violet-600 via-purple-600 to-violet-700">
           <div className="h-16 flex items-center justify-between px-4 border-b border-white/10">
             <AnimatePresence mode="wait">
               {sidebarOpen ? (
@@ -85,7 +86,7 @@ export default function Layout({ children }) {
                   </div>
                   <div>
                     <span className="font-bold text-xl text-white">MyMart</span>
-                    <p className="text-[10px] text-emerald-200 font-medium">Platform Admin</p>
+                    <p className="text-[10px] text-violet-200 font-medium">Platform Admin</p>
                   </div>
                 </motion.div>
               ) : (
@@ -149,7 +150,7 @@ export default function Layout({ children }) {
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: -10 }}
-                        className={`font-medium ${isActive ? 'text-white' : 'text-emerald-100'}`}
+                        className={`font-medium ${isActive ? 'text-white' : 'text-violet-100'}`}
                       >
                         {item.label}
                       </motion.span>
@@ -166,10 +167,10 @@ export default function Layout({ children }) {
             })}
           </nav>
 
-          <div className="absolute bottom-0 left-0 right-0 p-3 border-t border-white/10 bg-emerald-800/30 backdrop-blur-sm">
+          <div className="absolute bottom-0 left-0 right-0 p-3 border-t border-white/10 bg-violet-800/30 backdrop-blur-sm">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-300 to-green-400 flex items-center justify-center shadow-lg">
-                <span className="text-emerald-700 font-bold text-lg">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-300 to-purple-400 flex items-center justify-center shadow-lg">
+                <span className="text-violet-700 font-bold text-lg">
                   {user?.first_name?.[0]?.toUpperCase() || 'A'}
                 </span>
               </div>
@@ -182,7 +183,7 @@ export default function Layout({ children }) {
                   <p className="font-semibold text-white truncate">
                     {user?.first_name} {user?.last_name}
                   </p>
-                  <p className="text-[11px] text-emerald-200 truncate">{user?.email}</p>
+                  <p className="text-[11px] text-violet-200 truncate">{user?.email}</p>
                 </motion.div>
               )}
             </div>

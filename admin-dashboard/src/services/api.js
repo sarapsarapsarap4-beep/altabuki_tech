@@ -228,3 +228,8 @@ export const getStaffActivity = (storeId) => api.get(storeId ? `/staff/store/${s
 export const getStaffPermissions = () => api.get('/staff/permissions');
 
 export default api;
+
+// Wi-Fi network owner registrations (Phase 1)
+export const getWifiNetworkRegistrations = () => api.get('/wifi-vouchers/admin/registrations');
+export const reviewWifiNetworkRegistration = (registrationId, decision, note = '') =>
+  api.post(`/wifi-vouchers/admin/registrations/${registrationId}/review`, { decision, note });

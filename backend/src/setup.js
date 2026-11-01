@@ -332,15 +332,32 @@ async function setup() {
 
     console.log('\n🌱 Seeding initial data...\n');
 
-    // Seed Admin User
-    const adminPassword = await bcrypt.hash('admin123', 10);
-    const adminId = 'a0000000-0000-0000-0000-000000000001';
-    await pool.query(`
-      INSERT INTO users (id, email, password_hash, first_name, last_name, role, is_active)
-      VALUES ($1, $2, $3, $4, $5, $6, true)
-      ON CONFLICT (email) DO UPDATE SET password_hash = $3
-    `, [adminId, 'admin@mymart.com', adminPassword, 'Admin', 'User', 'admin']);
-    console.log('  ✅ Admin user: admin@mymart.com / admin123');
+    // Seed administrator only when an explicit, strong password is provided.
+    // Never create or reset a privileged account to a hard-coded default.
+    const configuredAdminEmail = String(process.env.ADMIN_EMAIL || 'admin@mymart.com').trim().toLowerCase();
+    const configuredAdminPassword = process.env.ADMIN_PASSWORD;
+    let adminId = null;
+    if (configuredAdminPassword) {
+      if (configuredAdminPassword.length < 12) {
+        throw new Error('ADMIN_PASSWORD must be at least 12 characters; no default admin password is allowed.');
+      }
+      const adminPasswordHash = await bcrypt.hash(configuredAdminPassword, 12);
+      const adminResult = await pool.query(`
+        INSERT INTO users (email, password_hash, first_name, last_name, role, is_active, email_verified)
+        VALUES ($1, $2, $3, $4, 'admin', true, true)
+        ON CONFLICT (email) DO UPDATE SET
+          password_hash = EXCLUDED.password_hash,
+          role = 'admin', is_active = true, email_verified = true,
+          updated_at = CURRENT_TIMESTAMP
+        RETURNING id
+      `, [configuredAdminEmail, adminPasswordHash, process.env.ADMIN_FIRST_NAME || 'Platform', process.env.ADMIN_LAST_NAME || 'Administrator']);
+      adminId = adminResult.rows[0].id;
+      console.log(`  ✅ Admin account configured: ${configuredAdminEmail} (password not printed)`);
+    } else {
+      const existingAdmin = await pool.query("SELECT id FROM users WHERE email = $1 AND role = 'admin' AND is_active = true", [configuredAdminEmail]);
+      adminId = existingAdmin.rows[0]?.id || null;
+      console.log(adminId ? `  ✅ Existing active admin retained: ${configuredAdminEmail}` : '  ⚠️ No admin seeded. Set ADMIN_PASSWORD and run node setup-admin.js to create one.');
+    }
 
     // Seed Demo Customer
     const customerPassword = await bcrypt.hash('customer123', 10);
@@ -354,12 +371,16 @@ async function setup() {
 
     // Seed Store
     const storeId = 's0000000-0000-0000-0000-000000000001';
-    await pool.query(`
-      INSERT INTO stores (id, owner_id, store_name, store_slug, description, is_active, is_verified)
-      VALUES ($1, $2, $3, $4, $5, true, true)
-      ON CONFLICT DO NOTHING
-    `, [storeId, adminId, 'MyMart Official', 'mymart-official', 'Official MyMart Store']);
-    console.log('  ✅ Demo store created');
+    if (adminId) {
+      await pool.query(`
+        INSERT INTO stores (id, owner_id, store_name, store_slug, description, is_active, is_verified)
+        VALUES ($1, $2, $3, $4, $5, true, true)
+        ON CONFLICT DO NOTHING
+      `, [storeId, adminId, 'MyMart Official', 'mymart-official', 'Official MyMart Store']);
+      console.log('  ✅ Demo store created');
+    } else {
+      console.log('  ⚠️ Demo store skipped because no active administrator was configured.');
+    }
 
     // Seed Delivery Settings
     const deliverySettings = [
@@ -445,9 +466,8 @@ async function setup() {
 
     console.log('\n🎉 MyMart Database Setup Complete!\n');
     console.log('=================================');
-    console.log('📋 Login Credentials:');
-    console.log('   Admin: admin@mymart.com / admin123');
-    console.log('   Demo: demo@mymart.com / customer123');
+    console.log('📋 Admin login: use ADMIN_EMAIL and the password you supplied via ADMIN_PASSWORD.');
+    console.log('   No default administrator password is created or displayed.');
     console.log('');
     console.log('🌐 Backend: http://localhost:5000');
     console.log('📱 Frontend: Run npm start in frontend folder');

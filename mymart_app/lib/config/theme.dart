@@ -16,17 +16,17 @@ String formatPrice(dynamic price, {bool showSymbol = true}) {
 }
 
 class AppTheme {
-  static const Color primary = Color(0xFF16A34A);
-  static const Color primaryDark = Color(0xFF15803D);
-  static const Color primaryDarker = Color(0xFF166534);
-  static const Color primaryLight = Color(0xFF22C55E);
-  static const Color primaryLighter = Color(0xFF4ADE80);
-  static const Color primaryExtraLight = Color(0xFFDCFCE7);
-  static const Color primaryGradientStart = Color(0xFF16A34A);
-  static const Color primaryGradientEnd = Color(0xFF22C55E);
+  static const Color primary = Color(0xFF4B3B68);
+  static const Color primaryDark = Color(0xFF392A54);
+  static const Color primaryDarker = Color(0xFF2C203F);
+  static const Color primaryLight = Color(0xFF665184);
+  static const Color primaryLighter = Color(0xFF8E7BAE);
+  static const Color primaryExtraLight = Color(0xFFEDE8F5);
+  static const Color primaryGradientStart = Color(0xFF4B3B68);
+  static const Color primaryGradientEnd = Color(0xFF665184);
 
-  static const Color secondary = Color(0xFF064E3B);
-  static const Color secondaryLight = Color(0xFF047857);
+  static const Color secondary = Color(0xFF392A54);
+  static const Color secondaryLight = Color(0xFF665184);
 
   static const Color accent = Color(0xFFF97316);
   static const Color accentLight = Color(0xFFFFEDD5);
@@ -46,8 +46,8 @@ class AppTheme {
   static const Color textTertiary = Color(0xFF94A3B8);
   static const Color textLight = Color(0xFFCBD5E1);
 
-  static const Color background = Color(0xFFF8FAFC);
-  static const Color backgroundDark = Color(0xFFF1F5F9);
+  static const Color background = Color(0xFFF4F4F8);
+  static const Color backgroundDark = Color(0xFFEEEEF3);
   static const Color surface = Color(0xFFFFFFFF);
   static const Color divider = Color(0xFFE2E8F0);
 
@@ -82,7 +82,7 @@ class AppTheme {
   );
 
   static Gradient get shimmerGradient => const LinearGradient(
-    colors: [Color(0xFFE2E8F0), Color(0xFFF8FAFC), Color(0xFFE2E8F0)],
+    colors: [Color(0xFFE2E8F0), Color(0xFFF4F4F8), Color(0xFFE2E8F0)],
     stops: [0.0, 0.5, 1.0],
     begin: Alignment(-1.0, -1.0),
     end: Alignment(1.0, 1.0),
@@ -166,8 +166,8 @@ class AppTheme {
   static List<BoxShadow> get cardShadowLight => shadowSm;
   @Deprecated('Use Color(0xFFE2E8F0) instead')
   static Color get shimmerBase => const Color(0xFFE2E8F0);
-  @Deprecated('Use Color(0xFFF8FAFC) instead')
-  static Color get shimmerHighlight => const Color(0xFFF8FAFC);
+  @Deprecated('Use Color(0xFFF4F4F8) instead')
+  static Color get shimmerHighlight => const Color(0xFFF4F4F8);
 
   static Route<T> fadeSlideRoute<T>(Widget page, {Duration duration = const Duration(milliseconds: 300)}) {
     return PageRouteBuilder<T>(
@@ -382,21 +382,21 @@ class AppTheme {
     ),
     scaffoldBackgroundColor: const Color(0xFF0F172A),
     textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme).apply(
-      bodyColor: const Color(0xFFF1F5F9),
-      displayColor: const Color(0xFFF1F5F9),
+      bodyColor: const Color(0xFFEEEEF3),
+      displayColor: const Color(0xFFEEEEF3),
     ),
     appBarTheme: AppBarTheme(
       backgroundColor: const Color(0xFF1E293B),
-      foregroundColor: const Color(0xFFF1F5F9),
+      foregroundColor: const Color(0xFFEEEEF3),
       elevation: 0,
       centerTitle: false,
       titleTextStyle: GoogleFonts.inter(
-        color: const Color(0xFFF1F5F9),
+        color: const Color(0xFFEEEEF3),
         fontSize: 20,
         fontWeight: FontWeight.w700,
         letterSpacing: -0.3,
       ),
-      iconTheme: const IconThemeData(color: Color(0xFFF1F5F9), size: 24),
+      iconTheme: const IconThemeData(color: Color(0xFFEEEEF3), size: 24),
       shadowColor: Colors.transparent,
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(

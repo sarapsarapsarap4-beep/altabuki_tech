@@ -10,15 +10,20 @@ async function seed() {
   console.log('🌱 MyMart Data Seeding...\n');
 
   try {
-    // Seed Admin User
+    // Never create/reset a privileged account with a hard-coded password.
+    const adminEmail = String(process.env.ADMIN_EMAIL || 'admin@mymart.com').trim().toLowerCase();
+    const configuredAdminPassword = process.env.ADMIN_PASSWORD;
+    if (!configuredAdminPassword || configuredAdminPassword.length < 12) {
+      throw new Error('Set ADMIN_PASSWORD to a unique password of at least 12 characters before seeding.');
+    }
     console.log('👤 Creating users...');
-    const adminPassword = await bcrypt.hash('admin123', 10);
+    const adminPassword = await bcrypt.hash(configuredAdminPassword, 12);
     await pool.query(`
-      INSERT INTO users (email, password_hash, first_name, last_name, role, is_active)
-      VALUES ($1, $2, $3, $4, $5, true)
-      ON CONFLICT (email) DO UPDATE SET password_hash = $2, first_name = $3, last_name = $4, role = $5
-    `, ['admin@mymart.com', adminPassword, 'Admin', 'User', 'admin']);
-    console.log('  ✅ Admin: admin@mymart.com / admin123');
+      INSERT INTO users (email, password_hash, first_name, last_name, role, is_active, email_verified)
+      VALUES ($1, $2, $3, $4, 'admin', true, true)
+      ON CONFLICT (email) DO UPDATE SET password_hash = $2, first_name = $3, last_name = $4, role = 'admin', is_active = true, email_verified = true, updated_at = NOW()
+    `, [adminEmail, adminPassword, process.env.ADMIN_FIRST_NAME || 'Platform', process.env.ADMIN_LAST_NAME || 'Administrator']);
+    console.log(`  ✅ Admin configured: ${adminEmail} (password not printed)`);
 
     const customerPassword = await bcrypt.hash('customer123', 10);
     await pool.query(`
@@ -29,7 +34,7 @@ async function seed() {
     console.log('  ✅ Demo: demo@mymart.com / customer123');
 
     // Get admin ID
-    const adminResult = await pool.query("SELECT id FROM users WHERE email = 'admin@mymart.com'");
+    const adminResult = await pool.query("SELECT id FROM users WHERE email = $1 AND role = 'admin' AND is_active = true", [adminEmail]);
     const adminId = adminResult.rows[0]?.id;
     if (!adminId) throw new Error('Admin user not found');
 
@@ -114,9 +119,9 @@ async function seed() {
 
     console.log('\n🎉 MyMart Data Seeded Successfully!\n');
     console.log('=================================');
-    console.log('📋 Login Credentials:');
-    console.log('   Admin: admin@mymart.com / admin123');
-    console.log('   Demo: demo@mymart.com / customer123');
+    console.log(`📋 Admin login email: ${adminEmail}`);
+    console.log('   Use the password supplied via ADMIN_PASSWORD (not printed).');
+    console.log('   Demo: demo@mymart.com / customer123 (development only)');
     console.log('');
     console.log('🌐 Now start backend: node server.js');
     console.log('📱 Then start frontend: npm start');

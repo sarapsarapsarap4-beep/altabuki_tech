@@ -1,5 +1,8 @@
 # 🛒 MyMart - Complete Multi-Vendor E-commerce Platform
 
+> **Wi-Fi voucher Phase 1 note:** This repository now includes the initial Wi-Fi network registration, owner-only “معرض شبكاتي”, admin review, voucher inventory/purchase endpoints, encrypted voucher storage, wallet ledger, and a fixed 0% platform commission policy. Before deployment, follow `backend/PHASE1_WIFI_SETUP.md`, apply migrations to a backed-up staging database, and set secrets privately. Do not treat the project as production-ready until the Flutter APK/dashboard are built and integration-tested on a real device and database.
+
+
 A fully-featured, production-ready multi-vendor e-commerce platform built with Flutter, Node.js, and PostgreSQL. Includes mobile app, admin dashboard, and vendor dashboard.
 
 **Live Demo:** `http://10.194.228.114:5000` | **Status:** ✅ Complete & Functional
@@ -203,19 +206,16 @@ cd MyMart-App-Full-Project/backend
 # Install dependencies
 npm install
 
-# Create .env file
-cat > .env << EOF
-DATABASE_URL=your_supabase_postgres_url
-JWT_SECRET=your_jwt_secret_key
-SENDGRID_API_KEY=your_sendgrid_api_key
-STRIPE_SECRET_KEY=your_stripe_key
+# Create .env file and set private values (do not commit this file)
+# Include DATABASE_URL, a random JWT_SECRET (32+ characters), and:
+ADMIN_EMAIL=admin@mymart.com
+ADMIN_PASSWORD=choose-a-unique-password-at-least-12-characters
 PORT=5000
 NODE_ENV=development
-EOF
 
-# Create admin user
+# Create/reset admin using the password set privately in backend/.env
 node setup-admin.js
-# Output: Admin created - Email: admin@mymart.com, Password: Admin@123
+# The script prints the admin email and role only; it never prints the password.
 
 # Start server
 npm start
@@ -578,8 +578,9 @@ npm start
 #### 2. Create Admin Account
 ```bash
 cd backend
+# First set ADMIN_EMAIL and a unique ADMIN_PASSWORD (12+ characters) in backend/.env.
 node setup-admin.js
-# Login: admin@mymart.com / Admin@123
+# Login with the configured admin email and the password you set privately.
 ```
 
 #### 3. Open Admin Dashboard
